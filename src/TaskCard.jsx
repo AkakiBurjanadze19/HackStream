@@ -31,6 +31,12 @@ const STATUS = {
     badgeBg: "#F3F4F6",
     badgeText: "#374151",
   },
+  overdue: {
+    label: "Overdue",
+    stripe: "#DC2626",
+    badgeBg: "#FEE2E2",
+    badgeText: "#991B1B",
+  },
 };
 
 function formatDate(value) {
