@@ -66,3 +66,16 @@
   padding: 6px 10px;
   border-radius: 999px;
 }
+
+.taskColumn {
+  width: 760px;      
+  max-width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.filterBar {
+  width: 100%;
+  box-sizing: border-box;
+}

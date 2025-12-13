@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import TaskCard from "./TaskCard";
 import TaskModal from "./TaskModal";
-import './App.css';
+import "./App.css";
 
 const initialTasks = [
   {
@@ -14,7 +14,7 @@ const initialTasks = [
     importance: 9,
     effort: 4,
     dependencies: ["Design UI mockups", "Set up API endpoints"],
-    status: "ready"
+    status: "ready",
   },
   {
     id: 2,
@@ -26,7 +26,7 @@ const initialTasks = [
     importance: 10,
     effort: 5,
     dependencies: ["Implement drag & drop", "Write unit tests", "Code review"],
-    status: "blocked"
+    status: "blocked",
   },
   {
     id: 3,
@@ -38,7 +38,7 @@ const initialTasks = [
     importance: 9,
     effort: 4,
     dependencies: ["Design UI mockups", "Set up API endpoints"],
-    status: "in_progress"
+    status: "in_progress",
   },
   {
     id: 4,
@@ -50,7 +50,7 @@ const initialTasks = [
     importance: 9,
     effort: 4,
     dependencies: ["Design UI mockups", "Set up API endpoints"],
-    status: "overdue"
+    status: "overdue",
   },
   {
     id: 5,
@@ -62,7 +62,7 @@ const initialTasks = [
     importance: 9,
     effort: 4,
     dependencies: ["Design UI mockups", "Set up API endpoints"],
-    status: "blocked"
+    status: "blocked",
   },
   {
     id: 6,
@@ -74,7 +74,7 @@ const initialTasks = [
     importance: 9,
     effort: 4,
     dependencies: ["Design UI mockups", "Set up API endpoints"],
-    status: "blocked"
+    status: "blocked",
   },
 ];
 
@@ -101,13 +101,11 @@ export default function App() {
   }
 
   function matchesFilter(task) {
-    // 1) Search (title + description + dependencies)
+    // 1) Search (ONLY title)
     if (search.trim()) {
       const q = norm(search);
       const inTitle = norm(task.title).includes(q);
-      const inDesc = norm(task.description).includes(q);
-      const inDeps = Array.isArray(task.dependencies) && task.dependencies.some((d) => norm(d).includes(q));
-      if (!inTitle && !inDesc && !inDeps) return false;
+      if (!inTitle) return false;
     }
 
     // 2) If filter needs a value and it's empty => don't filter
@@ -206,194 +204,223 @@ export default function App() {
       id: Date.now(),
       ...taskData,
       hours_left_until_deadline: taskData.hoursLeft || 0,
-      creation_date: taskData.createdAt || new Date().toISOString().split('T')[0],
+      creation_date: taskData.createdAt || new Date().toISOString().split("T")[0],
       dependencies: taskData.dependencies || [],
-      status: "backlog"
+      status: "backlog",
     };
     setTasks([...tasks, newTask]);
     setIsModalOpen(false);
   };
 
   return (
-    <div style={{ 
-      width: "100%",
-      display: "flex",
-      justifyContent: "flex-end",
-      paddingRight: 16, 
-      boxSizing: "border-box",
-      fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif",
-      WebkitFontSmoothing: "antialiased",
-      MozOsxFontSmoothing: "grayscale"
-    }}>
-      <div style={{ 
-        padding: 20, 
-        width: 900,
-        maxWidth: "100%",
+    <div
+      style={{
+        width: "100%",
         display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        gap: 16
-      }}>
-        {/* Add Task Button */}
-        <button
-          onClick={() => setIsModalOpen(true)}
+        justifyContent: "flex-end",
+        paddingRight: 16,
+        boxSizing: "border-box",
+        fontFamily:
+          "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif",
+        WebkitFontSmoothing: "antialiased",
+        MozOsxFontSmoothing: "grayscale",
+      }}
+    >
+      <div
+        style={{
+          width: "100%",
+          display: "flex",
+          justifyContent: "flex-end",
+          fontFamily:
+            "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif",
+          WebkitFontSmoothing: "antialiased",
+          MozOsxFontSmoothing: "grayscale",
+        }}
+      >
+        <div
+          className="taskColumn"
           style={{
-            padding: "10px 20px",
-            fontSize: 14,
-            fontWeight: 600,
-            color: "#FFFFFF",
-            background: "#4F46E5",
-            border: "none",
-            borderRadius: 10,
-            cursor: "pointer",
-            boxShadow: "0 2px 4px rgba(79, 70, 229, 0.2)",
-            transition: "all 0.2s ease",
-            alignSelf: "flex-start",
-            marginBottom: 8,
-          }}
-          onMouseEnter={(e) => {
-            e.target.style.background = "#4338CA";
-            e.target.style.boxShadow = "0 4px 8px rgba(79, 70, 229, 0.3)";
-          }}
-          onMouseLeave={(e) => {
-            e.target.style.background = "#4F46E5";
-            e.target.style.boxShadow = "0 2px 4px rgba(79, 70, 229, 0.2)";
+            paddingTop: 20,
+            paddingBottom: 20,
+            paddingLeft: 20,
+            paddingRight: 8, // small right gap
           }}
         >
-          + Add Task
-        </button>
+          {/* Add Task Button */}
+          <button
+            classname="addTaskBtn"
+            type="button"
+            onClick={() => setIsModalOpen(true)}
+            style={{
+              padding: "10px 20px",
+              fontSize: 14,
+              fontWeight: 600,
+              color: "#FFFFFF",
+              background: "#4F46E5",
+              border: "none",
+              borderRadius: 10,
+              cursor: "pointer",
+              boxShadow: "0 2px 4px rgba(79, 70, 229, 0.2)",
+              transition: "all 0.2s ease",
+              alignSelf: "flex-start",
+              marginBottom: 8,
+            }}
+            onMouseEnter={(e) => {
+              e.target.style.background = "#4338CA";
+              e.target.style.boxShadow = "0 4px 8px rgba(79, 70, 229, 0.3)";
+            }}
+            onMouseLeave={(e) => {
+              e.target.style.background = "#4F46E5";
+              e.target.style.boxShadow = "0 2px 4px rgba(79, 70, 229, 0.2)";
+            }}
+          >
+            + Add Task
+          </button>
 
-        {/* FILTER TOOLBAR (blue area) */}
-<div className="filterBar">
-  <input
-    className="filterSearch"
-    value={search}
-    onChange={(e) => setSearch(e.target.value)}
-    placeholder="Search title, description, dependencies…"
-  />
+          {/* FILTER TOOLBAR (blue area) */}
+          <div className="filterBar">
+            <input
+              className="filterSearch"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search title…"
+            />
 
-  <select
-    className="filterSelect"
-    value={filterKey}
-    onChange={(e) => {
-      const k = e.target.value;
-      setFilterKey(k);
-      setFilterValue("");
+            <select
+              className="filterSelect"
+              value={filterKey}
+              onChange={(e) => {
+                const k = e.target.value;
+                setFilterKey(k);
+                setFilterValue("");
 
-      // sensible defaults per type
-      if (k === "title" || k === "description") setFilterOp("contains");
-      else if (k === "status" || k === "urgency") setFilterOp("equals");
-      else if (k === "dependencies") setFilterOp("contains");
-      else if (k === "deadline" || k === "creation_date") setFilterOp("after");
-      else setFilterOp(">=");
-    }}
-  >
-    <option value="status">Status</option>
-    <option value="urgency">Urgency</option>
-    <option value="deadline">Deadline</option>
-    <option value="creation_date">Created</option>
-    <option value="hours_left_until_deadline">Hours left</option>
-    <option value="importance">Importance</option>
-    <option value="effort">Effort</option>
-    <option value="dependencies">Dependencies</option>
-    <option value="title">Title</option>
-    <option value="description">Description</option>
-  </select>
+                // sensible defaults per type
+                if (k === "title" || k === "description") setFilterOp("contains");
+                else if (k === "status" || k === "urgency") setFilterOp("equals");
+                else if (k === "dependencies") setFilterOp("contains");
+                else if (k === "deadline" || k === "creation_date") setFilterOp("after");
+                else setFilterOp(">=");
+              }}
+            >
+              <option value="status">Status</option>
+              <option value="urgency">Urgency</option>
+              <option value="deadline">Deadline</option>
+              <option value="creation_date">Created</option>
+              <option value="hours_left_until_deadline">Hours left</option>
+              <option value="importance">Importance</option>
+              <option value="effort">Effort</option>
+              <option value="dependencies">Dependencies</option>
+              <option value="title">Title</option>
+              <option value="description">Description</option>
+            </select>
 
-  <select className="filterSelect" value={filterOp} onChange={(e) => setFilterOp(e.target.value)}>
-    {(filterKey === "title" || filterKey === "description") && (
-      <>
-        <option value="contains">contains</option>
-        <option value="equals">equals</option>
-        <option value="starts_with">starts with</option>
-        <option value="ends_with">ends with</option>
-        <option value="is_empty">is empty</option>
-        <option value="is_not_empty">is not empty</option>
-      </>
-    )}
+            <select className="filterSelect" value={filterOp} onChange={(e) => setFilterOp(e.target.value)}>
+              {(filterKey === "title" || filterKey === "description") && (
+                <>
+                  <option value="contains">contains</option>
+                  <option value="equals">equals</option>
+                  <option value="starts_with">starts with</option>
+                  <option value="ends_with">ends with</option>
+                  <option value="is_empty">is empty</option>
+                  <option value="is_not_empty">is not empty</option>
+                </>
+              )}
 
-    {(filterKey === "status" || filterKey === "urgency") && (
-      <>
-        <option value="equals">equals</option>
-        <option value="not_equals">not equals</option>
-      </>
-    )}
+              {(filterKey === "status" || filterKey === "urgency") && (
+                <>
+                  <option value="equals">equals</option>
+                  <option value="not_equals">not equals</option>
+                </>
+              )}
 
-    {(filterKey === "importance" || filterKey === "effort" || filterKey === "hours_left_until_deadline") && (
-      <>
-        <option value="=">=</option>
-        <option value="!=">!=</option>
-        <option value=">">&gt;</option>
-        <option value=">=">&gt;=</option>
-        <option value="<">&lt;</option>
-        <option value="<=">&lt;=</option>
-      </>
-    )}
+              {(filterKey === "importance" || filterKey === "effort" || filterKey === "hours_left_until_deadline") && (
+                <>
+                  <option value="=">=</option>
+                  <option value="!=">!=</option>
+                  <option value=">">&gt;</option>
+                  <option value=">=">&gt;=</option>
+                  <option value="<">&lt;</option>
+                  <option value="<=">&lt;=</option>
+                </>
+              )}
 
-    {(filterKey === "deadline" || filterKey === "creation_date") && (
-      <>
-        <option value="on">on</option>
-        <option value="before">before</option>
-        <option value="after">after</option>
-        <option value="is_empty">is empty</option>
-        <option value="is_not_empty">is not empty</option>
-      </>
-    )}
+              {(filterKey === "deadline" || filterKey === "creation_date") && (
+                <>
+                  <option value="on">on</option>
+                  <option value="before">before</option>
+                  <option value="after">after</option>
+                  <option value="is_empty">is empty</option>
+                  <option value="is_not_empty">is not empty</option>
+                </>
+              )}
 
-    {filterKey === "dependencies" && (
-      <>
-        <option value="contains">contains</option>
-        <option value="has_any">has any</option>
-        <option value="has_none">has none</option>
-      </>
-    )}
-  </select>
+              {filterKey === "dependencies" && (
+                <>
+                  <option value="contains">contains</option>
+                  <option value="has_any">has any</option>
+                  <option value="has_none">has none</option>
+                </>
+              )}
+            </select>
 
-  {/* Value input changes by attribute */}
-  {["is_empty", "is_not_empty", "has_any", "has_none"].includes(filterOp) ? (
-    <span className="filterNoValue">no value</span>
-  ) : filterKey === "status" ? (
-    <select className="filterSelect" value={filterValue} onChange={(e) => setFilterValue(e.target.value)}>
-      <option value="">Choose…</option>
-      <option value="ready">ready</option>
-      <option value="in_progress">in progress</option>
-      <option value="blocked">blocked</option>
-      <option value="review">review</option>
-      <option value="backlog">backlog</option>
-      <option value="overdue">overdue</option>
-    </select>
-  ) : filterKey === "urgency" ? (
-    <select className="filterSelect" value={filterValue} onChange={(e) => setFilterValue(e.target.value)}>
-      <option value="">Choose…</option>
-      <option value="overdue">overdue</option>
-      <option value="due_soon">due soon</option>
-      <option value="due_today">due today</option>
-      <option value="plenty">plenty</option>
-      <option value="unknown">unknown</option>
-    </select>
-  ) : (filterKey === "deadline" || filterKey === "creation_date") ? (
-    <input className="filterInput" type="date" value={filterValue} onChange={(e) => setFilterValue(e.target.value)} />
-  ) : (filterKey === "importance" || filterKey === "effort" || filterKey === "hours_left_until_deadline") ? (
-    <input className="filterInput" type="number" value={filterValue} onChange={(e) => setFilterValue(e.target.value)} placeholder="number" />
-  ) : (
-    <input className="filterInput" value={filterValue} onChange={(e) => setFilterValue(e.target.value)} placeholder="value…" />
-  )}
+            {/* Value input changes by attribute */}
+            {["is_empty", "is_not_empty", "has_any", "has_none"].includes(filterOp) ? (
+              <span className="filterNoValue">no value</span>
+            ) : filterKey === "status" ? (
+              <select className="filterSelect" value={filterValue} onChange={(e) => setFilterValue(e.target.value)}>
+                <option value="">Choose…</option>
+                <option value="ready">ready</option>
+                <option value="in_progress">in progress</option>
+                <option value="blocked">blocked</option>
+                <option value="review">review</option>
+                <option value="backlog">backlog</option>
+                <option value="overdue">overdue</option>
+              </select>
+            ) : filterKey === "urgency" ? (
+              <select className="filterSelect" value={filterValue} onChange={(e) => setFilterValue(e.target.value)}>
+                <option value="">Choose…</option>
+                <option value="overdue">overdue</option>
+                <option value="due_soon">due soon</option>
+                <option value="due_today">due today</option>
+                <option value="plenty">plenty</option>
+                <option value="unknown">unknown</option>
+              </select>
+            ) : filterKey === "deadline" || filterKey === "creation_date" ? (
+              <input
+                className="filterInput"
+                type="date"
+                value={filterValue}
+                onChange={(e) => setFilterValue(e.target.value)}
+              />
+            ) : filterKey === "importance" || filterKey === "effort" || filterKey === "hours_left_until_deadline" ? (
+              <input
+                className="filterInput"
+                type="number"
+                value={filterValue}
+                onChange={(e) => setFilterValue(e.target.value)}
+                placeholder="number"
+              />
+            ) : (
+              <input
+                className="filterInput"
+                value={filterValue}
+                onChange={(e) => setFilterValue(e.target.value)}
+                placeholder="value…"
+              />
+            )}
 
-  <span className="filterCount">{filteredTasks.length} shown</span>
-</div>
+            <span className="filterCount">{filteredTasks.length} shown</span>
+          </div>
 
-{/* Task Cards */}
-{filteredTasks.map((task) => (
-  <TaskCard key={task.id} task={task} status={task.status} />
-))}
+          {/* Task Cards */}
+          {filteredTasks.map((task) => (
+            <TaskCard key={task.id} task={task} status={task.status} />
+          ))}
+        </div>
       </div>
 
       {/* Task Modal */}
-      <TaskModal
-        open={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        onCreate={handleCreateTask}
-      />
+      <TaskModal open={isModalOpen} onClose={() => setIsModalOpen(false)} onCreate={handleCreateTask} />
     </div>
   );
 }
