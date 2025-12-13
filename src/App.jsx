@@ -1,88 +1,100 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import TaskCard from "./Components/TaskCard";
 import TaskModal from "./Components/TaskModal";
-import './App.css';
+import WorkspaceLanding from "./WorkspaceLanding";
 
-const initialTasks = [
-  {
-    id: 1,
-    title: "Implement drag & drop",
-    description: "Enable moving tasks across columns with keyboard + mouse support.",
-    deadline: "2025-12-20T18:00:00Z",
-    hours_left_until_deadline: 42,
-    creation_date: "2025-12-12",
-    importance: 9,
-    effort: 4,
-    dependencies: ["Design UI mockups", "Set up API endpoints"],
-    status: "ready"
-  },
-  {
-    id: 2,
-    title: "Deploy to production",
-    description: "Deploy the application to the production environment.",
-    deadline: "2025-12-25T18:00:00Z",
-    hours_left_until_deadline: 120,
-    creation_date: "2025-12-15",
-    importance: 10,
-    effort: 5,
-    dependencies: ["Implement drag & drop", "Write unit tests", "Code review"],
-    status: "blocked"
-  },
-  {
-    id: 3,
-    title: "Implement drag & drop",
-    description: "Enable moving tasks across columns with keyboard + mouse support.",
-    deadline: "2025-12-20T18:00:00Z",
-    hours_left_until_deadline: 42,
-    creation_date: "2025-12-12",
-    importance: 9,
-    effort: 4,
-    dependencies: ["Design UI mockups", "Set up API endpoints"],
-    status: "in_progress"
-  },
-  {
-    id: 4,
-    title: "Implement drag & drop",
-    description: "Enable moving tasks across columns with keyboard + mouse support.",
-    deadline: "2025-12-20T18:00:00Z",
-    hours_left_until_deadline: 42,
-    creation_date: "2025-12-12",
-    importance: 9,
-    effort: 4,
-    dependencies: ["Design UI mockups", "Set up API endpoints"],
-    status: "overdue"
-  },
-  {
-    id: 5,
-    title: "Implement drag & drop",
-    description: "Enable moving tasks across columns with keyboard + mouse support.",
-    deadline: "2025-12-20T18:00:00Z",
-    hours_left_until_deadline: 42,
-    creation_date: "2025-12-12",
-    importance: 9,
-    effort: 4,
-    dependencies: ["Design UI mockups", "Set up API endpoints"],
-    status: "blocked"
-  },
-  {
-    id: 6,
-    title: "Implement drag & drop",
-    description: "Enable moving tasks across columns with keyboard + mouse support.",
-    deadline: "2025-12-20T18:00:00Z",
-    hours_left_until_deadline: 42,
-    creation_date: "2025-12-12",
-    importance: 9,
-    effort: 4,
-    dependencies: ["Design UI mockups", "Set up API endpoints"],
-    status: "blocked"
-  },
-];
+// localStorage keys
+const STORAGE_KEYS = {
+  workspaces: "hackstream_workspaces",
+  tasks: "hackstream_tasks",
+};
+
+// Helper functions for localStorage
+const loadWorkspaces = () => {
+  try {
+    const stored = localStorage.getItem(STORAGE_KEYS.workspaces);
+    if (stored) {
+      return JSON.parse(stored);
+    }
+  } catch (error) {
+    console.error("Error loading workspaces from localStorage:", error);
+  }
+  // Default workspaces if nothing is stored
+  return [
+    { id: "1", name: "Personal Tasks", type: "personal", color: "#475569" },
+    { id: "2", name: "Uni Project", type: "normal", color: "#0F766E" },
+    { id: "3", name: "Company Board", type: "company", color: "#4F46E5" },
+  ];
+};
+
+const saveWorkspaces = (workspaces) => {
+  try {
+    localStorage.setItem(STORAGE_KEYS.workspaces, JSON.stringify(workspaces));
+  } catch (error) {
+    console.error("Error saving workspaces to localStorage:", error);
+  }
+};
+
+const loadTasks = () => {
+  try {
+    const stored = localStorage.getItem(STORAGE_KEYS.tasks);
+    if (stored) {
+      return JSON.parse(stored);
+    }
+  } catch (error) {
+    console.error("Error loading tasks from localStorage:", error);
+  }
+  // Return empty object if nothing is stored
+  return {};
+};
+
+const saveTasks = (tasksByWorkspace) => {
+  try {
+    localStorage.setItem(STORAGE_KEYS.tasks, JSON.stringify(tasksByWorkspace));
+  } catch (error) {
+    console.error("Error saving tasks to localStorage:", error);
+  }
+};
 
 export default function App() {
-  const [tasks, setTasks] = useState(initialTasks);
+  const [workspaces, setWorkspaces] = useState(() => loadWorkspaces());
+  const [activeWs, setActiveWs] = useState(null);
+  // tasksByWorkspace is an object where keys are workspace IDs and values are task arrays
+  const [tasksByWorkspace, setTasksByWorkspace] = useState(() => loadTasks());
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+  // Get tasks for the currently active workspace
+  const tasks = activeWs ? (tasksByWorkspace[activeWs.id] || []) : [];
+
+  // Save workspaces to localStorage whenever they change
+  useEffect(() => {
+    saveWorkspaces(workspaces);
+  }, [workspaces]);
+
+  // Save tasks to localStorage whenever they change
+  useEffect(() => {
+    saveTasks(tasksByWorkspace);
+  }, [tasksByWorkspace]);
+
+  // Initialize empty tasks array for new workspace when it's selected
+  useEffect(() => {
+    if (activeWs) {
+      setTasksByWorkspace((prev) => {
+        // Only initialize if it doesn't exist
+        if (!prev[activeWs.id]) {
+          return {
+            ...prev,
+            [activeWs.id]: [],
+          };
+        }
+        return prev;
+      });
+    }
+  }, [activeWs]);
+
   const handleCreateTask = (taskData) => {
+    if (!activeWs) return;
+    
     const newTask = {
       id: Date.now(),
       ...taskData,
@@ -91,10 +103,50 @@ export default function App() {
       dependencies: taskData.dependencies || [],
       status: "backlog"
     };
-    setTasks([...tasks, newTask]);
+    
+    // Add task to the current workspace only
+    setTasksByWorkspace((prev) => ({
+      ...prev,
+      [activeWs.id]: [...(prev[activeWs.id] || []), newTask],
+    }));
+    
     setIsModalOpen(false);
   };
 
+  // When no workspace is selected -> show landing
+  if (!activeWs) {
+    return (
+      <WorkspaceLanding
+        workspaces={workspaces}
+        onSelectWorkspace={setActiveWs}
+        onCreateWorkspace={(ws) => {
+          const newWorkspace = { id: crypto.randomUUID(), ...ws };
+          setWorkspaces((prev) => [newWorkspace, ...prev]);
+          // Initialize empty tasks array for the new workspace
+          setTasksByWorkspace((prev) => ({
+            ...prev,
+            [newWorkspace.id]: [],
+          }));
+        }}
+        onUpdateWorkspace={(id, patch) =>
+          setWorkspaces((prev) =>
+            prev.map((w) => (w.id === id ? { ...w, ...patch } : w))
+          )
+        }
+        onDeleteWorkspace={(id) => {
+          setWorkspaces((prev) => prev.filter((w) => w.id !== id));
+          // Also delete tasks for this workspace
+          setTasksByWorkspace((prev) => {
+            const updated = { ...prev };
+            delete updated[id];
+            return updated;
+          });
+        }}
+      />
+    );
+  }
+
+  // Task board view when a workspace is selected
   return (
     <div style={{ 
       width: "100%",
@@ -113,6 +165,49 @@ export default function App() {
         alignItems: "flex-end",
         gap: 16
       }}>
+        {/* Workspace header with back button */}
+        <div style={{
+          width: "100%",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginBottom: 8,
+        }}>
+          <button
+            type="button"
+            onClick={() => setActiveWs(null)}
+            style={{
+              padding: "8px 12px",
+              borderRadius: 10,
+              border: "1px solid #E5E7EB",
+              background: "#FFFFFF",
+              cursor: "pointer",
+              fontWeight: 600,
+              color: "#111827",
+              fontSize: 13,
+            }}
+          >
+            ← Back to workspaces
+          </button>
+          <div style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 10,
+          }}>
+            <span
+              style={{
+                width: 10,
+                height: 24,
+                borderRadius: 999,
+                background: activeWs.color || "#4F46E5",
+              }}
+            />
+            <h2 style={{ margin: 0, fontSize: 18, fontWeight: 700 }}>
+              {activeWs.name}
+            </h2>
+          </div>
+        </div>
+
         {/* Add Task Button */}
         <button
           onClick={() => setIsModalOpen(true)}
