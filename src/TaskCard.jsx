@@ -88,6 +88,20 @@ export default function TaskCard({ task, status = "backlog" }) {
         {/* Description */}
         <p style={styles.desc}>{task?.description ?? "No description."}</p>
 
+        {/* Dependencies */}
+        {task?.dependencies && task.dependencies.length > 0 && (
+          <div style={styles.dependenciesSection}>
+            <div style={styles.dependenciesLabel}>Depends on:</div>
+            <div style={styles.dependenciesList}>
+              {task.dependencies.map((dep, index) => (
+                <span key={index} style={styles.dependencyTag}>
+                  {dep}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Meta grid */}
         <div style={styles.metaGrid}>
           <div style={styles.metaItem}>
@@ -125,11 +139,13 @@ export default function TaskCard({ task, status = "backlog" }) {
 const styles = {
   card: {
     display: "flex",
-    background: "#F9FAFB",     
+    background: "#FFFFFF",     
     border: "1px solid #E5E7EB",
-    borderRadius: 14,
+    borderRadius: 12,
     overflow: "hidden",
-    boxShadow: "0 1px 2px rgba(0,0,0,0.05)",
+    boxShadow: "0 2px 8px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.06)",
+    transition: "box-shadow 0.2s ease",
+    fontFamily: "inherit",
   },
   stripe: {
     width: 6,
@@ -144,18 +160,19 @@ const styles = {
     display: "flex",
     alignItems: "flex-start",
     justifyContent: "space-between",
-    gap: 10,
-    marginBottom: 8,
+    gap: 12,
+    marginBottom: 10,
   },
   title: {
     margin: 0,
     fontSize: 16,
-    lineHeight: 1.25,
+    lineHeight: 1.3,
     fontWeight: 700,
     color: "#111827",
     overflow: "hidden",
     textOverflow: "ellipsis",
     whiteSpace: "nowrap",
+    letterSpacing: "-0.01em",
   },
   badges: {
     display: "flex",
@@ -164,22 +181,52 @@ const styles = {
     justifyContent: "flex-end",
   },
   badge: {
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: 600,
     padding: "4px 8px",
     borderRadius: 999,
-    border: "1px solid rgba(0,0,0,0.06)",
+    border: "1px solid rgba(0,0,0,0.08)",
     whiteSpace: "nowrap",
+    letterSpacing: "0.01em",
   },
   desc: {
     margin: "0 0 12px 0",
     fontSize: 13,
-    lineHeight: 1.4,
-    color: "#374151",
+    lineHeight: 1.5,
+    color: "#4B5563",
     display: "-webkit-box",
     WebkitBoxOrient: "vertical",
     WebkitLineClamp: 2,
     overflow: "hidden",
+  },
+  dependenciesSection: {
+    marginBottom: 12,
+    padding: "8px 10px",
+    background: "#FEF3C7",
+    border: "1px solid #FCD34D",
+    borderRadius: 10,
+  },
+  dependenciesLabel: {
+    fontSize: 11,
+    fontWeight: 600,
+    color: "#92400E",
+    marginBottom: 6,
+    letterSpacing: "0.01em",
+  },
+  dependenciesList: {
+    display: "flex",
+    flexWrap: "wrap",
+    gap: 6,
+  },
+  dependencyTag: {
+    fontSize: 11,
+    fontWeight: 500,
+    padding: "3px 8px",
+    background: "#FFFFFF",
+    border: "1px solid #FCD34D",
+    borderRadius: 5,
+    color: "#92400E",
+    whiteSpace: "nowrap",
   },
   metaGrid: {
     display: "grid",
@@ -187,16 +234,19 @@ const styles = {
     gap: 10,
   },
   metaItem: {
-    background: "#FFFFFF",
+    background: "#F9FAFB",
     border: "1px solid #E5E7EB",
     borderRadius: 10,
     padding: "8px 10px",
     minWidth: 0,
+    transition: "background-color 0.2s ease",
   },
   metaLabel: {
     fontSize: 11,
     color: "#6B7280",
     marginBottom: 4,
+    fontWeight: 500,
+    letterSpacing: "0.01em",
   },
   metaValue: {
     fontSize: 13,
