@@ -1,6 +1,6 @@
 import { useState } from "react";
-import TaskCard from "./TaskCard";
-import TaskModal from "./TaskModal";
+import TaskCard from "./Components/TaskCard";
+import TaskModal from "./Components/TaskModal";
 import './App.css';
 
 const initialTasks = [
@@ -87,7 +87,7 @@ export default function App() {
       id: Date.now(),
       ...taskData,
       hours_left_until_deadline: taskData.hoursLeft || 0,
-      creation_date: taskData.createdAt || new Date().toISOString().split('T')[0],
+      creation_date: (taskData.createdAt || new Date().toISOString()).split('T')[0],
       dependencies: taskData.dependencies || [],
       status: "backlog"
     };
