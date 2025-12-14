@@ -1,19 +1,17 @@
 import { useEffect, useMemo, useState } from "react";
 
-const TYPES = [
-  { value: "personal", label: "Personal", desc: "For your own tasks and notes" },
-  { value: "normal", label: "Normal", desc: "General purpose workspace" },
-  { value: "company", label: "Company", desc: "Team/company workflows" },
+const STATUS = [
+  { value: "todo", label: "Yet to do" },
+  { value: "ongoing", label: "On going" },
+  { value: "done", label: "Done" },
 ];
 
-const PALETTE = ["#4F46E5", "#0F766E", "#475569", "#6D28D9", "#92400E"];
+export default function TaskModal({ open, onClose, onCreate }) {
+  const [title, setTitle] = useState("");
+  const [priority, setPriority] = useState(3);
+  const [status, setStatus] = useState("todo");
 
-export default function WorkspaceModal({ open, onClose, onCreate }) {
-  const [name, setName] = useState("");
-  const [type, setType] = useState("normal");
-  const [color, setColor] = useState(PALETTE[0]);
-
-  const canSubmit = useMemo(() => name.trim().length > 0, [name]);
+  const canSubmit = useMemo(() => title.trim().length > 0, [title]);
 
   useEffect(() => {
     if (!open) return;
@@ -22,20 +20,16 @@ export default function WorkspaceModal({ open, onClose, onCreate }) {
     return () => window.removeEventListener("keydown", onKey);
   }, [open, onClose]);
 
-  useEffect(() => {
-    if (open) setColor(PALETTE[0]);
-  }, [open]);
-
   function reset() {
-    setName("");
-    setType("normal");
-    setColor(PALETTE[0]);
+    setTitle("");
+    setPriority(3);
+    setStatus("todo");
   }
 
   function submit(e) {
     e.preventDefault();
     if (!canSubmit) return;
-    onCreate?.({ name: name.trim(), type, color });
+    onCreate?.({ title: title.trim(), priority: Number(priority), status });
     reset();
   }
 
@@ -46,8 +40,8 @@ export default function WorkspaceModal({ open, onClose, onCreate }) {
       <div style={styles.modal} onMouseDown={(e) => e.stopPropagation()}>
         <div style={styles.top}>
           <div>
-            <div style={styles.title}>New Workspace</div>
-            <div style={styles.sub}>Name it and choose a type.</div>
+            <div style={styles.title}>New Task</div>
+            <div style={styles.sub}>Title, priority (0–5), and status.</div>
           </div>
 
           <button type="button" onClick={onClose} style={styles.closeBtn} aria-label="Close">
@@ -57,53 +51,44 @@ export default function WorkspaceModal({ open, onClose, onCreate }) {
 
         <form onSubmit={submit} style={styles.form}>
           <label style={styles.label}>
-            Workspace name
+            Title
             <StyledInput
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="e.g. Jellyfish Inc."
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="e.g. Update dashboard"
               autoFocus
             />
           </label>
 
-          {/* Small color chooser */}
-          <div style={styles.colorRow}>
-            <div style={styles.colorLabel}>Color</div>
-            <div style={styles.colorChips}>
-              {PALETTE.map((hex) => {
-                const selected = hex === color;
-                return (
-                  <button
-                    key={hex}
-                    type="button"
-                    onClick={() => setColor(hex)}
-                    style={{
-                      ...styles.colorChip,
-                      ...(selected ? styles.colorChipSelected : null),
-                    }}
-                    title={hex}
-                  >
-                    <span style={{ ...styles.colorDot, background: hex }} />
-                  </button>
-                );
-              })}
+          <label style={styles.label}>
+            Priority
+            <div style={styles.priorityRow}>
+              <input
+                type="range"
+                min={0}
+                max={5}
+                step={1}
+                value={priority}
+                onChange={(e) => setPriority(e.target.value)}
+                style={styles.range}
+              />
+              <div style={styles.badge}>{priority}</div>
             </div>
-          </div>
+          </label>
 
           <div style={styles.section}>
-            <div style={styles.sectionTitle}>Workspace type</div>
-            <div style={styles.typeGrid}>
-              {TYPES.map((t) => {
-                const selected = t.value === type;
+            <div style={styles.sectionTitle}>Status</div>
+            <div style={styles.statusGrid}>
+              {STATUS.map((s) => {
+                const selected = s.value === status;
                 return (
                   <button
-                    key={t.value}
+                    key={s.value}
                     type="button"
-                    onClick={() => setType(t.value)}
-                    style={{ ...styles.typeCard, ...(selected ? styles.typeCardSelected : null) }}
+                    onClick={() => setStatus(s.value)}
+                    style={{ ...styles.statusCard, ...(selected ? styles.statusCardSelected : null) }}
                   >
-                    <div style={styles.typeLabel}>{t.label}</div>
-                    <div style={styles.typeDesc}>{t.desc}</div>
+                    <div style={styles.statusLabel}>{s.label}</div>
                   </button>
                 );
               })}
@@ -127,7 +112,7 @@ export default function WorkspaceModal({ open, onClose, onCreate }) {
               disabled={!canSubmit}
               style={{ ...styles.primary, ...(canSubmit ? null : styles.primaryDisabled) }}
             >
-              Create workspace
+              Create
             </button>
           </div>
         </form>
@@ -140,7 +125,6 @@ const c = {
   base: "#334155",
   surface: "#1E293B",
   surface2: "#334155",
-  border: "#475569",
   text: "#F1F5F9",
   muted: "#94A3B8",
   accent: "#6366F1",
@@ -162,7 +146,7 @@ const styles = {
     zIndex: 50,
   },
   modal: {
-    width: "min(720px, 100%)",
+    width: "min(640px, 100%)",
     background: c.surface,
     color: c.text,
     borderRadius: 20,
@@ -192,46 +176,34 @@ const styles = {
 
   form: { padding: 16, display: "grid", gap: 12 },
   label: { display: "grid", gap: 7, fontSize: 12, fontWeight: 900, color: c.text },
-  
-  colorRow: {
+
+  priorityRow: {
     display: "flex",
     alignItems: "center",
-    justifyContent: "space-between",
-    gap: 12,
+    gap: 10,
     padding: 12,
     borderRadius: 16,
     border: `1px solid ${c.base}`,
     background: c.surface2,
   },
-  colorLabel: { fontSize: 12, fontWeight: 950, color: c.text },
-  colorChips: { display: "flex", gap: 10, flexWrap: "wrap", justifyContent: "flex-end" },
-  colorChip: {
-    width: 44,
-    height: 34,
-    borderRadius: 14,
-    border: `1px solid ${c.base}`,
-    background: c.surface,
-    cursor: "pointer",
+  range: { width: "100%" },
+  badge: {
+    minWidth: 32,
+    height: 32,
+    borderRadius: 12,
+    border: `1px solid ${c.border}`,
+    background: c.surface2,
+    color: c.text,
     display: "grid",
     placeItems: "center",
-    boxShadow: c.shadowSoft,
-  },
-  colorChipSelected: {
-    border: `1px solid ${c.accent}`,
-    boxShadow: `0 0 0 4px ${c.focusRing}`,
-  },
-  colorDot: {
-    width: 14,
-    height: 14,
-    borderRadius: 999,
-    boxShadow: "inset 0 0 0 1px rgba(255,255,255,0.15)",
+    fontWeight: 950,
   },
 
   section: { display: "grid", gap: 10 },
   sectionTitle: { fontSize: 12, fontWeight: 950 },
-  typeGrid: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 10 },
-  typeCard: {
-    textAlign: "left",
+  statusGrid: { display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 10 },
+  statusCard: {
+    textAlign: "center",
     borderRadius: 16,
     border: `1px solid ${c.base}`,
     background: c.surface2,
@@ -239,13 +211,12 @@ const styles = {
     cursor: "pointer",
     boxShadow: c.shadowSoft,
   },
-  typeCardSelected: {
+  statusCardSelected: {
     border: `1px solid ${c.accent}`,
     background: `linear-gradient(180deg, ${c.surface} 0%, rgba(99,102,241,0.15) 100%)`,
     boxShadow: "0 12px 30px rgba(99, 102, 241, 0.30)",
   },
-  typeLabel: { fontWeight: 950, fontSize: 13 },
-  typeDesc: { marginTop: 6, fontSize: 12.5, color: c.muted, lineHeight: 1.35 },
+  statusLabel: { fontWeight: 950, fontSize: 13 },
 
   actions: { marginTop: 4, display: "flex", justifyContent: "flex-end", gap: 10 },
   ghost: {
@@ -260,13 +231,12 @@ const styles = {
   primary: {
     padding: "10px 14px",
     borderRadius: 14,
-    border: `1px solid ${c.accent}`,
+    border: `1px solid ${c.accentSoft}`,
     background: c.accent,
     color: "#fff",
     cursor: "pointer",
     fontWeight: 950,
-    boxShadow: "0 10px 22px rgba(99, 102, 241, 0.35)",
-    transition: "all 0.2s ease",
+    boxShadow: "0 10px 22px rgba(79,70,229,0.18)",
   },
   primaryDisabled: { opacity: 0.55, cursor: "not-allowed", boxShadow: "none" },
 

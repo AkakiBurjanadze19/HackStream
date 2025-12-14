@@ -158,26 +158,26 @@ export default function WorkspaceSettingsModal({
 }
 
 const c = {
-  base: "#E5E7EB",
-  surface: "#FFFFFF",
-  surface2: "#F9FAFB",
-  border: "#D1D5DB",
-  text: "#111827",
-  muted: "#6B7280",
-  accent: "#4F46E5",
-  accentSoft: "rgba(79, 70, 229, 0.12)",
-  focusRing: "rgba(79, 70, 229, 0.28)",
-  shadow: "0 24px 70px rgba(17, 24, 39, 0.18)",
-  shadowSoft: "0 12px 35px rgba(17, 24, 39, 0.10)",
-  danger: "#B91C1C",
-  dangerSoft: "rgba(185, 28, 28, 0.10)",
+  base: "#334155",
+  surface: "#1E293B",
+  surface2: "#334155",
+  border: "#475569",
+  text: "#F1F5F9",
+  muted: "#94A3B8",
+  accent: "#6366F1",
+  accentSoft: "rgba(99, 102, 241, 0.20)",
+  focusRing: "rgba(99, 102, 241, 0.35)",
+  shadow: "0 24px 70px rgba(0, 0, 0, 0.50)",
+  shadowSoft: "0 12px 35px rgba(0, 0, 0, 0.35)",
+  danger: "#EF4444",
+  dangerSoft: "rgba(239, 68, 68, 0.20)",
 };
 
 const styles = {
   overlay: {
     position: "fixed",
     inset: 0,
-    background: "rgba(17, 24, 39, 0.38)",
+    background: "rgba(0, 0, 0, 0.65)",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
@@ -248,7 +248,7 @@ const styles = {
     width: 14,
     height: 14,
     borderRadius: 999,
-    boxShadow: "inset 0 0 0 1px rgba(0,0,0,0.12)",
+    boxShadow: "inset 0 0 0 1px rgba(255,255,255,0.15)",
   },
 
   // same type section as WorkspaceModal
@@ -266,8 +266,8 @@ const styles = {
   },
   typeCardSelected: {
     border: `1px solid ${c.accent}`,
-    background: `linear-gradient(180deg, ${c.surface} 0%, rgba(79,70,229,0.06) 100%)`,
-    boxShadow: "0 12px 30px rgba(79, 70, 229, 0.12)",
+    background: `linear-gradient(180deg, ${c.surface} 0%, rgba(99,102,241,0.15) 100%)`,
+    boxShadow: "0 12px 30px rgba(99, 102, 241, 0.30)",
   },
   typeLabel: { fontWeight: 950, fontSize: 13, color: c.text },
   typeDesc: { marginTop: 6, fontSize: 12.5, color: c.muted, lineHeight: 1.35 },
@@ -285,12 +285,13 @@ const styles = {
   primary: {
     padding: "10px 14px",
     borderRadius: 14,
-    border: `1px solid ${c.accentSoft}`,
+    border: `1px solid ${c.accent}`,
     background: c.accent,
     color: "#fff",
     cursor: "pointer",
     fontWeight: 950,
-    boxShadow: "0 10px 22px rgba(79, 70, 229, 0.18)",
+    boxShadow: "0 10px 22px rgba(99, 102, 241, 0.35)",
+    transition: "all 0.2s ease",
   },
   primaryDisabled: { opacity: 0.55, cursor: "not-allowed", boxShadow: "none" },
 
@@ -334,7 +335,7 @@ const styles = {
     outline: "none",
     fontSize: 14,
     color: c.text,
-    boxShadow: "inset 0 1px 0 rgba(255,255,255,0.8)",
+    boxShadow: "inset 0 1px 0 rgba(0,0,0,0.10)",
   },
   fieldFocus: {
     border: `1px solid ${c.accent}`,

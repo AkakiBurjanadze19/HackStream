@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 
-export default function TaskModal({ open, onClose, onCreate }) {
+export default function TaskModal({ open, onClose, onCreate, onUpdate, initialTask = null }) {
+  const isEditMode = !!initialTask;
+  
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [importance, setImportance] = useState(3);
@@ -25,9 +27,38 @@ export default function TaskModal({ open, onClose, onCreate }) {
     return () => window.removeEventListener("keydown", onKey);
   }, [open, onClose]);
 
-  // Reset form when modal closes
+  // Load initial task data when editing
   useEffect(() => {
-    if (!open) {
+    if (open && initialTask) {
+      setTitle(initialTask.title || "");
+      setDescription(initialTask.description || "");
+      setImportance(initialTask.importance ?? 3);
+      setEffort(initialTask.effort ?? 3);
+      // Convert ISO date to datetime-local format
+      if (initialTask.deadline) {
+        const date = new Date(initialTask.deadline);
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, "0");
+        const day = String(date.getDate()).padStart(2, "0");
+        const hours = String(date.getHours()).padStart(2, "0");
+        const minutes = String(date.getMinutes()).padStart(2, "0");
+        setDeadline(`${year}-${month}-${day}T${hours}:${minutes}`);
+      } else {
+        setDeadline("");
+      }
+      setDependencies(
+        Array.isArray(initialTask.dependencies)
+          ? initialTask.dependencies.join(", ")
+          : initialTask.dependencies || ""
+      );
+      setErrors({});
+      setTouched({});
+    }
+  }, [open, initialTask]);
+
+  // Reset form when modal closes (only if not editing)
+  useEffect(() => {
+    if (!open && !initialTask) {
       setTitle("");
       setDescription("");
       setImportance(3);
@@ -37,7 +68,7 @@ export default function TaskModal({ open, onClose, onCreate }) {
       setErrors({});
       setTouched({});
     }
-  }, [open]);
+  }, [open, initialTask]);
 
   const hoursLeft = useMemo(() => {
     if (!deadline) return 0;
@@ -47,12 +78,14 @@ export default function TaskModal({ open, onClose, onCreate }) {
   }, [deadline]);
 
   function reset() {
-    setTitle("");
-    setDescription("");
-    setImportance(3);
-    setEffort(3);
-    setDeadline("");
-    setDependencies("");
+    if (!isEditMode) {
+      setTitle("");
+      setDescription("");
+      setImportance(3);
+      setEffort(3);
+      setDeadline("");
+      setDependencies("");
+    }
     setErrors({});
     setTouched({});
   }
@@ -123,16 +156,22 @@ export default function TaskModal({ open, onClose, onCreate }) {
       .map((dep) => dep.trim())
       .filter((dep) => dep.length > 0);
 
-    onCreate({
+    const taskData = {
       title: title.trim(),
       description: description.trim(),
       importance: Number(importance),
       effort: Number(effort),
       deadline: deadline ? new Date(deadline).toISOString() : null,
       hoursLeft,
-      createdAt: new Date().toISOString(),
       dependencies: dependenciesArray,
-    });
+    };
+
+    if (isEditMode && onUpdate) {
+      onUpdate(initialTask.id, taskData);
+    } else if (onCreate) {
+      taskData.createdAt = new Date().toISOString();
+      onCreate(taskData);
+    }
 
     reset();
   }
@@ -166,8 +205,8 @@ export default function TaskModal({ open, onClose, onCreate }) {
       <div style={styles.modal} onMouseDown={(e) => e.stopPropagation()}>
         <div style={styles.top}>
           <div>
-            <div style={styles.title}>New Task</div>
-            <div style={styles.sub}>Fill the details and save.</div>
+            <div style={styles.title}>{isEditMode ? "Edit Task" : "New Task"}</div>
+            <div style={styles.sub}>{isEditMode ? "Update the details and save." : "Fill the details and save."}</div>
           </div>
 
           <button
@@ -309,7 +348,7 @@ export default function TaskModal({ open, onClose, onCreate }) {
                 ...(btnHover.primary ? styles.primaryHover : null),
               }}
             >
-              Create task
+              {isEditMode ? "Update task" : "Create task"}
             </button>
           </div>
         </form>
@@ -318,28 +357,28 @@ export default function TaskModal({ open, onClose, onCreate }) {
   );
 }
 
-/** Smooth, engaging palette using base color #E5E7EB */
+/** Dark theme palette */
 const c = {
-  base: "#E5E7EB",
-  bg: "#F3F4F6",
-  surface: "#FFFFFF",
-  surface2: "#F9FAFB",
-  border: "#D1D5DB",
-  text: "#111827",
-  muted: "#6B7280",
-  accent: "#4F46E5",
-  accentHover: "#4338CA",
-  accentSoft: "rgba(79, 70, 229, 0.12)",
-  focusRing: "rgba(79, 70, 229, 0.28)",
-  shadow: "0 24px 70px rgba(17, 24, 39, 0.18)",
-  shadowSoft: "0 12px 35px rgba(17, 24, 39, 0.10)",
+  base: "#334155",
+  bg: "#0F172A",
+  surface: "#1E293B",
+  surface2: "#334155",
+  border: "#475569",
+  text: "#F1F5F9",
+  muted: "#94A3B8",
+  accent: "#6366F1",
+  accentHover: "#818CF8",
+  accentSoft: "rgba(99, 102, 241, 0.20)",
+  focusRing: "rgba(99, 102, 241, 0.35)",
+  shadow: "0 24px 70px rgba(0, 0, 0, 0.50)",
+  shadowSoft: "0 12px 35px rgba(0, 0, 0, 0.35)",
 };
 
 const styles = {
   overlay: {
     position: "fixed",
     inset: 0,
-    background: "rgba(17, 24, 39, 0.38)",
+    background: "rgba(0, 0, 0, 0.65)",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
@@ -425,16 +464,17 @@ const styles = {
   primary: {
     padding: "10px 14px",
     borderRadius: 14,
-    border: `1px solid ${c.accentSoft}`,
+    border: `1px solid ${c.accent}`,
     background: c.accent,
     color: "#FFFFFF",
     cursor: "pointer",
     fontWeight: 950,
-    boxShadow: "0 10px 22px rgba(79, 70, 229, 0.18)",
+    boxShadow: "0 10px 22px rgba(99, 102, 241, 0.35)",
+    transition: "all 0.2s ease",
   },
   primaryHover: {
     background: c.accentHover,
-    boxShadow: "0 12px 26px rgba(67, 56, 202, 0.22)",
+    boxShadow: "0 12px 26px rgba(129, 140, 248, 0.40)",
   },
 
   fieldBase: {
@@ -446,7 +486,7 @@ const styles = {
     outline: "none",
     fontSize: 14,
     color: c.text,
-    boxShadow: "inset 0 1px 0 rgba(255,255,255,0.8)",
+    boxShadow: "inset 0 1px 0 rgba(0,0,0,0.10)",
   },
   fieldFocus: {
     border: `1px solid ${c.accent}`,
@@ -463,7 +503,7 @@ const styles = {
     fontSize: 14,
     color: c.text,
     resize: "vertical",
-    boxShadow: "inset 0 1px 0 rgba(255,255,255,0.8)",
+    boxShadow: "inset 0 1px 0 rgba(0,0,0,0.10)",
   },
   textareaFocus: {
     border: `1px solid ${c.accent}`,
@@ -480,15 +520,15 @@ const styles = {
 
   errorText: {
     fontSize: 11,
-    color: "#DC2626",
+    color: "#F87171",
     marginTop: 4,
     lineHeight: 1.4,
     fontWeight: 600,
   },
 
   fieldError: {
-    border: `1px solid #DC2626`,
-    background: "#FEF2F2",
+    border: `1px solid #EF4444`,
+    background: "rgba(239, 68, 68, 0.15)",
   },
 };
 

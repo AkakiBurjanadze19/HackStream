@@ -138,17 +138,17 @@ function formatType(t) {
 }
 
 const c = {
-  base: "#E5E7EB",
-  bg: "#F3F4F6",
-  surface: "#FFFFFF",
-  surface2: "#F9FAFB",
-  border: "#D1D5DB",
-  text: "#111827",
-  muted: "#6B7280",
-  accent: "#4F46E5",
-  accentSoft: "rgba(79, 70, 229, 0.12)",
-  shadow: "0 24px 70px rgba(17, 24, 39, 0.12)",
-  shadowSoft: "0 12px 35px rgba(17, 24, 39, 0.08)",
+  base: "#334155",
+  bg: "#0F172A",
+  surface: "#1E293B",
+  surface2: "#334155",
+  border: "#475569",
+  text: "#F1F5F9",
+  muted: "#94A3B8",
+  accent: "#6366F1",
+  accentSoft: "rgba(99, 102, 241, 0.20)",
+  shadow: "0 24px 70px rgba(0, 0, 0, 0.40)",
+  shadowSoft: "0 12px 35px rgba(0, 0, 0, 0.25)",
 };
 
 const styles = {
@@ -206,12 +206,13 @@ const styles = {
   primary: {
     padding: "10px 14px",
     borderRadius: 14,
-    border: `1px solid ${c.accentSoft}`,
+    border: `1px solid ${c.accent}`,
     background: c.accent,
     color: "#fff",
     cursor: "pointer",
     fontWeight: 950,
-    boxShadow: "0 10px 22px rgba(79, 70, 229, 0.16)",
+    boxShadow: "0 10px 22px rgba(99, 102, 241, 0.35)",
+    transition: "all 0.2s ease",
   },
 
   empty: {
@@ -239,7 +240,7 @@ const styles = {
     overflow: "hidden",
     cursor: "pointer",
   },
-  wsWrapHover: { border: `1px solid ${c.border}`, background: "#FFFFFF" },
+  wsWrapHover: { border: `1px solid ${c.border}`, background: "#475569", boxShadow: "0 8px 24px rgba(0, 0, 0, 0.30)" },
   wsStripe: { position: "absolute", left: 0, top: 0, bottom: 0, width: 8 },
 
   // Inner layout fixes alignment (no overlap, consistent bottom button)
@@ -271,8 +272,8 @@ const styles = {
     fontSize: 12,
     padding: "6px 10px",
     borderRadius: 999,
-    border: `1px solid ${c.base}`,
-    background: "#fff",
+    border: `1px solid ${c.border}`,
+    background: c.surface,
     color: c.text,
     whiteSpace: "nowrap",
     fontWeight: 800,
@@ -295,13 +296,14 @@ const styles = {
     width: 38,
     height: 30,
     borderRadius: 12,
-    border: `1px solid ${c.base}`,
-    background: "#fff",
+    border: `1px solid ${c.border}`,
+    background: c.surface,
     cursor: "pointer",
     fontWeight: 900,
     color: c.text,
     display: "grid",
     placeItems: "center",
+    transition: "all 0.2s ease",
   },
-  cfgBtnHover: { border: `1px solid ${c.border}`, boxShadow: c.shadowSoft },
+  cfgBtnHover: { border: `1px solid ${c.accent}`, background: c.surface2, boxShadow: `0 4px 12px rgba(99, 102, 241, 0.25)` },
 };

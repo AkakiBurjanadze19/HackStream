@@ -1,0 +1,52 @@
+:root {
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+}
+
+body {
+  margin: 0;
+  background: #0F172A;
+  color: #F1F5F9;
+}
+
+/* Force white edges in task graph */
+.task-graph-svg line.spine,
+.task-graph-svg path.edge {
+  stroke: #FFFFFF !important;
+}
+
+/* Custom tooltip for graph nodes */
+.graph-tooltip {
+  background: linear-gradient(180deg, #1E293B 0%, #334155 100%);
+  border: 1px solid #475569;
+  border-radius: 16px;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.50), 0 8px 24px rgba(0, 0, 0, 0.30);
+  backdrop-filter: blur(12px);
+  color: #F1F5F9;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  max-width: 320px;
+  transition: opacity 0.2s ease;
+}
+
+/* Animation for task execution simulation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Typing indicator animation for chatbot */
+@keyframes typing {
+  0%, 60%, 100% {
+    opacity: 0.3;
+    transform: scale(0.8);
+  }
+  30% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
